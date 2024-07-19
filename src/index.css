@@ -1,12 +1,18 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css");
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
 * {
   font-family: "Pretendard JP", "Pretendard";
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  color: #fff;
+  /* color: #fff; */
 
 
   -webkit-touch-callout: none;

@@ -12,7 +12,7 @@ lazy_static! {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_image])
+        .invoke_handler(tauri::generate_handler![get_images, get_image])
         .setup(|app| {
             let windows: tauri::Window = app.get_window("main").unwrap();
             #[cfg(target_os = "windows")]
@@ -35,7 +35,7 @@ fn main() {
 }
 
 #[tauri::command]
-fn get_image() -> Vec<String> {
+fn get_images() -> Vec<String> {
     let path = PATH.lock();
     let mut images = vec![];
     if path.is_ok() {
@@ -53,15 +53,14 @@ fn get_image() -> Vec<String> {
             }
         }
     }
-    println!("{:?}", images);
     images
 }
-
-// #[tauri::command]
-// fn set_path() {
-//     let path = PATH.lock();
-//     if path.is_ok() {
-//         let path = path.unwrap();
-//         std::fs::read_dir(path.to_owned()).unwrap();
-//     }
-// }
+#[tauri::command]
+fn get_image(name: String) {
+    let path = PATH.lock();
+    if path.is_ok() {
+        let path = path.unwrap().to_string();
+        let base64 = image_base64::to_base64(&format!("{path}/{name}"));
+        println!("{base64}")
+    }
+}

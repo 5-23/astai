@@ -12,7 +12,7 @@ lazy_static! {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_images, get_image])
+        .invoke_handler(tauri::generate_handler![get_images, get_image, get_folder])
         .setup(|app| {
             let windows: tauri::Window = app.get_window("main").unwrap();
             #[cfg(target_os = "windows")]
@@ -63,4 +63,14 @@ fn get_image(name: String) {
         let base64 = image_base64::to_base64(&format!("{path}/{name}"));
         println!("{base64}")
     }
+}
+
+#[tauri::command]
+fn get_folder() -> String {
+    let a = rfd::FileDialog::new()
+        .pick_folder()
+        .unwrap_or("/".to_owned().into());
+    let a = a.to_str().unwrap_or("/");
+
+    a.to_string()
 }

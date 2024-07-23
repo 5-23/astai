@@ -6,13 +6,20 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "astaai",
+    "productName": "astai",
     "version": "0.0.0" 
   },
   "tauri": {
-    
     "allowlist": {
-      "all": true
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      }
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
     },
     "windows": [
       {
@@ -31,10 +38,7 @@
       "targets": "all",
       "identifier": "f.5-23.dev",
       "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
+        "icons/icon.png",
         "icons/icon.ico"
       ]
     }

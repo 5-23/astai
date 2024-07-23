@@ -4,22 +4,41 @@
 use std::sync::Mutex;
 
 use lazy_static::lazy_static;
-use tauri::Manager;
+use tauri::{
+    CustomMenuItem, Manager, Menu, MenuItem, Runtime, Submenu, SystemTray, SystemTrayMenu, Window,
+};
 use window_vibrancy::*;
 lazy_static! {
     static ref PATH: Mutex<String> = Mutex::new("/Users/dev523/data/test".to_string());
 }
 
 fn main() {
+    let tray = SystemTray::new().with_menu(
+        SystemTrayMenu::new()
+            .add_item(CustomMenuItem::new("adsf".to_string(), "title"))
+            .add_native_item(tauri::SystemTrayMenuItem::Separator)
+            .add_item(CustomMenuItem::new("adsf".to_string(), "title"))
+            .add_item(CustomMenuItem::new("adsf".to_string(), "title")),
+    );
+    let default_menu = Menu::default();
+
+    let menu = default_menu.add_submenu(Submenu::new(
+        "astai",
+        Menu::new().add_item({
+            let mut item = CustomMenuItem::new("settings", "Settings...");
+            item.keyboard_accelerator = Some("cmdOrctrl + ,".to_string());
+            item
+        }),
+    ));
+
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_images, get_image, get_folder])
+        .system_tray(tray)
+        .menu(menu.clone())
+        .invoke_handler(tauri::generate_handler![
+            get_images, get_image, get_folder, get_class
+        ])
         .setup(|app| {
             let windows: tauri::Window = app.get_window("main").unwrap();
-            #[cfg(target_os = "windows")]
-            {
-                window.open_devtools();
-                window.close_devtools();
-            }
             #[cfg(target_os = "macos")]
             apply_vibrancy(&windows, NSVisualEffectMaterial::HudWindow, None, None)
                 .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
@@ -66,11 +85,33 @@ fn get_image(name: String) {
 }
 
 #[tauri::command]
-fn get_folder() -> String {
-    let a = rfd::FileDialog::new()
-        .pick_folder()
-        .unwrap_or("/".to_owned().into());
-    let a = a.to_str().unwrap_or("/");
+fn get_class() -> Vec<String> {
+    let path = PATH.lock();
+    if path.is_ok() {
+        let path = path.unwrap();
+        let content =
+            std::fs::read_to_string(format!("{}/class.astai", *path)).unwrap_or_else(|_| {
+                std::fs::write(format!("{}/class.astai", (*path).clone()), "[]".to_string())
+                    .unwrap();
+                "".to_string()
+            });
+        return content.split("\n").map(|x| x.to_string()).collect();
+    }
+    vec![]
+}
 
-    a.to_string()
+#[tauri::command]
+fn get_folder() -> String {
+    let path = PATH.lock();
+    if path.is_ok() {
+        let mut path = path.unwrap();
+        let path_value = path.clone();
+        let a = rfd::FileDialog::new()
+            .pick_folder()
+            .unwrap_or(path_value.clone().into());
+        let a = a.to_str().unwrap_or(&path_value);
+        *path = a.to_string();
+        return a.to_string();
+    }
+    "/".to_string()
 }

@@ -1,17 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod menu;
-use std::{path::PathBuf, sync::Mutex};
-
-use lazy_static::lazy_static;
-use tauri::{
-    CustomMenuItem, Manager, Menu, MenuItem, Runtime, Submenu, SystemTray, SystemTrayMenu, Window,
-};
-use window_vibrancy::*;
-lazy_static! {
-    static ref PATH: Mutex<String> = Mutex::new("/Users/dev523/data/test".to_string());
-}
+use astai::*;
+use tauri::{CustomMenuItem, Manager, Menu, Submenu, SystemTray, SystemTrayMenu};
 
 fn main() {
     let tray = SystemTray::new().with_menu(
@@ -47,94 +38,28 @@ fn main() {
         .system_tray(tray)
         .menu(menu.clone())
         .invoke_handler(tauri::generate_handler![
-            get_images, get_image, get_folder, get_class
+            commands::get_images,
+            commands::get_image,
+            commands::get_folder,
+            commands::get_class
         ])
         .setup(|app| {
-            tauri::WindowBuilder::new(
+            let setting_window = tauri::WindowBuilder::new(
                 &app.handle(),
                 "setting", /* the unique window label */
                 tauri::WindowUrl::App("settings".into()),
             )
             .build()
-            .unwrap()
-            .hide()
             .unwrap();
+            setting_window.hide().unwrap();
+            setting_window.allow_alpha();
 
-            let windows: tauri::Window = app.get_window("main").unwrap();
-            #[cfg(target_os = "macos")]
-            apply_vibrancy(&windows, NSVisualEffectMaterial::HudWindow, None, None)
-                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
-
-            #[cfg(target_os = "windows")]
-            apply_acrylic(&windows, Some((18, 18, 18, 125)))
-                .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+            let main_window: tauri::Window = app.get_window("main").unwrap();
+            main_window.allow_alpha();
 
             Ok(())
         })
         .on_menu_event(menu::menu_event)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[tauri::command]
-fn get_images() -> Vec<String> {
-    let path = PATH.lock();
-    let mut images = vec![];
-    if path.is_ok() {
-        let path = path.unwrap();
-        let dir = std::fs::read_dir(path.to_owned()).unwrap();
-        for entry in dir.into_iter() {
-            let name = entry.unwrap().file_name();
-            let name = name.to_str().unwrap();
-            if name.ends_with(".png")
-                | name.ends_with(".jpg")
-                | name.ends_with(".jpeg")
-                | name.ends_with(".webp")
-            {
-                images.push(name.to_string())
-            }
-        }
-    }
-    images
-}
-#[tauri::command]
-fn get_image(name: String) {
-    let path = PATH.lock();
-    if path.is_ok() {
-        let path = path.unwrap().to_string();
-        let base64 = image_base64::to_base64(&format!("{path}/{name}"));
-        println!("{base64}")
-    }
-}
-
-#[tauri::command]
-fn get_class() -> Vec<String> {
-    let path = PATH.lock();
-    if path.is_ok() {
-        let path = path.unwrap();
-        let content =
-            std::fs::read_to_string(format!("{}/class.astai", *path)).unwrap_or_else(|_| {
-                std::fs::write(format!("{}/class.astai", (*path).clone()), "[]".to_string())
-                    .unwrap();
-                "".to_string()
-            });
-        return content.split("\n").map(|x| x.to_string()).collect();
-    }
-    vec![]
-}
-
-#[tauri::command]
-fn get_folder() -> String {
-    let path = PATH.lock();
-    if path.is_ok() {
-        let mut path = path.unwrap();
-        let path_value = path.clone();
-        let a = rfd::FileDialog::new()
-            .pick_folder()
-            .unwrap_or(path_value.clone().into());
-        let a = a.to_str().unwrap_or(&path_value);
-        *path = a.to_string();
-        return a.to_string();
-    }
-    "/".to_string()
 }

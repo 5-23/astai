@@ -1,4 +1,4 @@
-use tauri::{generate_context, Context, Manager, Window, WindowBuilder, WindowMenuEvent};
+use tauri::{Manager, WindowMenuEvent};
 
 pub fn menu_event(event: WindowMenuEvent) {
     match event.menu_item_id() {

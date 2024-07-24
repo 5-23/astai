@@ -1,7 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::Mutex;
+mod menu;
+use std::{path::PathBuf, sync::Mutex};
 
 use lazy_static::lazy_static;
 use tauri::{
@@ -24,11 +25,22 @@ fn main() {
 
     let menu = default_menu.add_submenu(Submenu::new(
         "astai",
-        Menu::new().add_item({
-            let mut item = CustomMenuItem::new("settings", "Settings...");
-            item.keyboard_accelerator = Some("cmdOrctrl + ,".to_string());
-            item
-        }),
+        Menu::new()
+            .add_item({
+                let mut item = CustomMenuItem::new("settings", "Settings...");
+                item.keyboard_accelerator = Some("cmdOrctrl + ,".to_string());
+                item
+            })
+            .add_item({
+                let mut item = CustomMenuItem::new("quit", "quit");
+                item.keyboard_accelerator = Some("cmdOrctrl + q".to_string());
+                item
+            })
+            .add_item({
+                let mut item = CustomMenuItem::new("close", "close");
+                item.keyboard_accelerator = Some("cmdOrctrl + w".to_string());
+                item
+            }),
     ));
 
     tauri::Builder::default()
@@ -38,6 +50,16 @@ fn main() {
             get_images, get_image, get_folder, get_class
         ])
         .setup(|app| {
+            tauri::WindowBuilder::new(
+                &app.handle(),
+                "setting", /* the unique window label */
+                tauri::WindowUrl::App("settings".into()),
+            )
+            .build()
+            .unwrap()
+            .hide()
+            .unwrap();
+
             let windows: tauri::Window = app.get_window("main").unwrap();
             #[cfg(target_os = "macos")]
             apply_vibrancy(&windows, NSVisualEffectMaterial::HudWindow, None, None)
@@ -49,6 +71,7 @@ fn main() {
 
             Ok(())
         })
+        .on_menu_event(menu::menu_event)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

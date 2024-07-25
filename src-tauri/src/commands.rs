@@ -30,7 +30,10 @@ pub fn get_image(name: String) -> String {
     let path = PATH.lock();
     if path.is_ok() {
         let path = path.unwrap().to_string();
-        return image_base64::to_base64(&format!("{path}/{name}"));
+        let base64_text = image_base64::to_base64(&format!("{path}/{name}"));
+        let img = image_base64::from_base64(base64_text.clone());
+        println!("{base64_text}");
+        return base64_text;
     }
     "".to_string()
 }

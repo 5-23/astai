@@ -1,4 +1,4 @@
-use std::{sync::Mutex};
+use std::sync::Mutex;
 
 use lazy_static::lazy_static;
 lazy_static! {
@@ -26,13 +26,13 @@ pub fn get_images() -> Vec<String> {
     images
 }
 #[tauri::command]
-pub fn get_image(name: String) {
+pub fn get_image(name: String) -> String {
     let path = PATH.lock();
     if path.is_ok() {
         let path = path.unwrap().to_string();
-        let base64 = image_base64::to_base64(&format!("{path}/{name}"));
-        println!("{base64}")
+        return image_base64::to_base64(&format!("{path}/{name}"));
     }
+    "".to_string()
 }
 
 #[tauri::command]
@@ -42,11 +42,11 @@ pub fn get_class() -> Vec<String> {
         let path = path.unwrap();
         let content =
             std::fs::read_to_string(format!("{}/class.astai", *path)).unwrap_or_else(|_| {
-                std::fs::write(format!("{}/class.astai", (*path).clone()), "[]".to_string())
-                    .unwrap();
+                std::fs::write(format!("{}/class.astai", (*path).clone()), "".to_string()).unwrap();
                 "".to_string()
             });
-        return content.split("\n").map(|x| x.to_string()).collect();
+        println!("{:#?}", content.trim());
+        return content.trim().split("\n").map(|x| x.to_string()).collect();
     }
     vec![]
 }

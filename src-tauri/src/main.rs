@@ -49,6 +49,7 @@ fn main() {
                 "setting", /* the unique window label */
                 tauri::WindowUrl::App("settings".into()),
             )
+            .transparent(true)
             .build()
             .unwrap();
             setting_window.hide().unwrap();

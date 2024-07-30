@@ -14,25 +14,34 @@ fn main() {
     );
     let default_menu = Menu::default();
 
-    let menu = default_menu.add_submenu(Submenu::new(
-        "astai",
-        Menu::new()
-            .add_item({
-                let mut item = CustomMenuItem::new("settings", "Settings...");
-                item.keyboard_accelerator = Some("cmdOrctrl + ,".to_string());
-                item
-            })
-            .add_item({
-                let mut item = CustomMenuItem::new("quit", "quit");
-                item.keyboard_accelerator = Some("cmdOrctrl + q".to_string());
-                item
-            })
-            .add_item({
-                let mut item = CustomMenuItem::new("close", "close");
-                item.keyboard_accelerator = Some("cmdOrctrl + w".to_string());
+    let menu = default_menu
+        .add_submenu(Submenu::new(
+            "astai",
+            Menu::new()
+                .add_item({
+                    let mut item = CustomMenuItem::new("settings", "Settings...");
+                    item.keyboard_accelerator = Some("cmdOrctrl + ,".to_string());
+                    item
+                })
+                .add_item({
+                    let mut item = CustomMenuItem::new("quit", "quit");
+                    item.keyboard_accelerator = Some("cmdOrctrl + q".to_string());
+                    item
+                })
+                .add_item({
+                    let mut item = CustomMenuItem::new("close", "close");
+                    item.keyboard_accelerator = Some("cmdOrctrl + w".to_string());
+                    item
+                }),
+        ))
+        .add_submenu(Submenu::new(
+            "File",
+            Menu::new().add_item({
+                let mut item = CustomMenuItem::new("open", "Open...");
+                item.keyboard_accelerator = Some("cmdOrctrl + o".to_string());
                 item
             }),
-    ));
+        ));
 
     tauri::Builder::default()
         .system_tray(tray)

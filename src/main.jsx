@@ -1,9 +1,16 @@
-import React from "react";
+import React, { StrictMode } from "react";
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import Index from "./App";
+import Setting from "./Setting";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+
+    <BrowserRouter>
+        <Routes>
+            <Route path="/" element={<Index />}></Route>
+            <Route path="/settings" element={<Setting />}></Route>
+        </Routes>
+    </BrowserRouter>
 );

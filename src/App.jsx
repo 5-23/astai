@@ -1,36 +1,62 @@
 import { useRef, useState } from "react";
 // import reactLogo from "../assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
-import { appWindow } from "@tauri-apps/api/window";
-import "./App.css";
+import "./styles/App.css"
 
-function App() {
-  const [name, setName] = useState("");
-  const [imagePath, setImagePath] = useState("");
-  
-  const folderPath = useRef();
+export default () => {
+  // const [name, setName] = useState("");
+  const [folderPath, setFolderPath] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
+  const [classNames, setClassNames] = useState([]);
+
+
+
   async function getImages() {
     return await invoke("get_images");
   }
-  async function getImage() {
-    return await invoke("get_image");
+  async function getImage(name) {
+    return await invoke("get_image", { name });
   }
-  return (
-    <div className="bg-red-400">aaa</div>
-    // <main className="flex flex-col justify-between p-8 h-[100dvh]">
-    //   <article>
-    //     <img src="" className="block bg-gray-200 min-h-100 min-w-230"/>
-    //   </article>
+  async function getFolder() {
+    return await invoke("get_folder");
+  }
+  async function getClass() {
+    return await invoke("get_class");
+  }
 
-    //   <article>
-    //     <div className="flex gap-4 justify-between w-full">
-    //       {/* <input value="불러오기" type="file" accept="png" ref={folderPath} className="flex-1 duration-300 bg-violet-600/80 hover:bg-violet-600 text-white py-3 rounded-md text-xm"/> */}
-    //       <input value="불러오기" type="button" className="flex-1 duration-300 bg-violet-600/80 hover:bg-violet-600 text-white py-3 rounded-md text-xm" onClick={async () => {console.log(await getImages())}} />
-    //     </div>
-    //   </article>
-    // </main>
+
+  const reload = async () => {
+    let imgs = await getImages();
+    let base64_img = await getImage(imgs[0])
+    setImgUrl(base64_img)
+
+    console.log(await getClass())
+  }
+
+  return (
+    <main className="flex flex-col justify-between p-8 h-[100dvh]">
+
+      <article className="bg-gray-800/45 text-white h-full  ">
+        {folderPath}
+        <section className="display-flex h-fit w-full">
+
+          <img src={imgUrl} className="h-full object-fill " />
+          <div className="w-[100px] bg-blue-300">
+            {classNames.map((name, idx) => <div>
+              <input id={`cls-name-{idx}`} value={name} />
+              <input type="button" id={`remove-name-{idx}`} value={x} />
+            </div>)}
+
+          </div>
+        </section>
+      </article>
+
+      <article>
+        {folderPath ? <></> : <div className="absolute top-2/4 left-2/4 -translate-x-2/4  -translate-y-2/4">
+          <input value="불러오기" type="button" className="px-2 py-1 cursor-pointer duration-300 bg-blue-500/80 hover:bg-blue-500 text-white rounded-md text-xm" onClick={async () => { setFolderPath(await getFolder()); await reload() }} />
+        </div>
+        }
+      </article>
+    </main>
   );
 }
-
-export default App;
-

@@ -1,0 +1,5 @@
+@import url("Root.css");
+html,
+body {
+    background: rgba(0, 7, 68, 0.036);
+}

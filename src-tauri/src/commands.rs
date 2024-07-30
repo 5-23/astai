@@ -23,6 +23,7 @@ pub fn get_images() -> Vec<String> {
             }
         }
     }
+    images.sort();
     images
 }
 #[tauri::command]
@@ -32,7 +33,6 @@ pub fn get_image(name: String) -> String {
         let path = path.unwrap().to_string();
         let base64_text = image_base64::to_base64(&format!("{path}/{name}"));
         let img = image_base64::from_base64(base64_text.clone());
-        println!("{base64_text}");
         return base64_text;
     }
     "".to_string()
@@ -48,7 +48,6 @@ pub fn get_class() -> Vec<String> {
                 std::fs::write(format!("{}/class.astai", (*path).clone()), "".to_string()).unwrap();
                 "".to_string()
             });
-        println!("{:#?}", content.trim());
         return content.trim().split("\n").map(|x| x.to_string()).collect();
     }
     vec![]

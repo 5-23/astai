@@ -10,17 +10,13 @@
     "version": "0.0.0" 
   },
   "tauri": {
-
     "updater": {
       "active": true,
       "endpoints": [
-        "https://github.com/5-23/astai/releases/download/{{target}}/{{arch}}/{{current_version}}"
+        "https://cdn.crabnebula.app/update/asta/astai/{{target}}-{{arch}}/{{current_version}}"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgzNkZFN0IxQ0JCOUMyQjcKUldTM3dybkxzZWR2ZzRNWWJTWVF3SEw0NVZ5cWt1N0hMaXRQOWZaSG9NdzJ5MjRNU1JFeWxNNXIK",
-      "windows": {
-        "installMode": "passive"
-      }
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgzNkZFN0IxQ0JCOUMyQjcKUldTM3dybkxzZWR2ZzRNWWJTWVF3SEw0NVZ5cWt1N0hMaXRQOWZaSG9NdzJ5MjRNU1JFeWxNNXIK"
     },
     "allowlist": {
       "all": false,
